@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tanrend lekérdezés</title>
+
+    <!-- Külső stíluslap linkelése -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/daypilot/2023.2.4603/styles/calendar.css">
+    <link rel="stylesheet" href="indexstyle.css">
+
+    <!-- DayPilot JS -->
+    <script src="daypilot-all.min.js"></script>
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <h1>Tanrend lekérdezés</h1>
+    </header>
+
+    <div class="container">
+        <label for="name">Tantárgy kódja: </label>
+        <input type="text" id="name" placeholder="Add meg a tárgy kódját" value="IP-18AB1E">
+
+        <label for="semester">Félév: </label>
+        <input type="text" id="semester" placeholder="Add meg a félévet" value="2024-2025-2">
+
+        <button onclick="fetchData()"><i class="fas fa-search"></i> Lekérdezés</button>
+
+
+        <h2>Naptár</h2>
+        <div id="colorMapping">
+            <h3>Event Color Mapping</h3>
+            <ul id="colorList"></ul>
+        </div>
+        <div id="dp"></div>
+
+        <table id="resulttable">
+            <thead>
+                <tr>
+                    <th scope="col">Időpont</th>
+                    <th scope="col">Tantárgy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- A válasz itt fog megjelenni -->
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
