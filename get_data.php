@@ -3,7 +3,7 @@ $tantargy = isset($_GET['name']) ? $_GET['name'] : '';
 $felev = isset($_GET['semester']) ? $_GET['semester'] : '2024-2025-2';
 
 if (empty($tantargy)) {
-    echo json_encode(["error" => "Az oktató neve kötelező!"]);
+    echo json_encode(["error" => "A tanárgyak kódjai kötelezőek!"]);
     exit;
 }
 

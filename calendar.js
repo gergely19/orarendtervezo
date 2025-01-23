@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const errors = {
         "IP-18cSZÁMEA1G": [1, 2, 12], //számításelmélet Gy
         "IP-18cNM1G": [1, 2, 3], //numerikus módszerek Gy
-        "IP-18AB1G": [1, 2, 3, 4, 5, 9, 10, 11, 12], //adatbázisok Gy
+        "IP-18AB1G": [1, 2, 3, 4, 5, 6, 8, 7, 13, 9, 10, 11, 12, 15, 14, 17, 16,], //adatbázisok Gy
         "IP-18OPREG": [1, 2, 3, 4, 5, 6, 7, 8, 9], //operációs rendszerek Gy
         "IP-18cSZTEG": [1, 2, 3] //Szoftvertechnologia Ea+Gy
     }
@@ -32,10 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
         args.header.html = hour.toString("H:mm");
         args.header.cssClass = "hourheader";
     };
-    dp.onBeforeEventRender = function(args) {
-        var clickedTags =   args.e.tags;
-        args.data.bubbleHtml = clickedTags["tantargy"] +" - " + clickedTags["tanar"];
-      };
+    dp.onBeforeEventRender = function (args) {
+        var clickedTags = args.e.tags;
+        args.data.bubbleHtml = clickedTags["tantargy"] + " - " + clickedTags["tanar"];
+    };
     // Esemény létrehozása
     dp.onTimeRangeSelected = function (args) {
         var name = prompt("Új esemény neve:", "Esemény");
@@ -71,17 +71,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     deletedColors.add(event.barColor);
                 });
             })
-    
 
-            
+
+
             eventsToRestore[0].forEach(event => {
-                if(!(deletedColors.has(event.barColor))) {
+                if (!(deletedColors.has(event.barColor))) {
                     dp.events.add(event);
                 }
-                else{
+                else {
                     Object.keys(localStorage).forEach(key => {
                         var color = JSON.parse(localStorage.getItem(key))["clickedColor"];
-                        if(color == event.barColor) {
+                        if (color == event.barColor) {
                             var keyevents = JSON.parse(localStorage.getItem(key));
                             keyevents["deletedEvents"][0].push(event);
                             localStorage.setItem(key, JSON.stringify(keyevents));
@@ -94,36 +94,36 @@ document.addEventListener("DOMContentLoaded", function () {
             clickedEvent.data.isSelected = false;
             clickedEvent.data.fontColor = "black";
 
-            clickedEvent.text(clickedTags["kurzuskod"]); 
+            clickedEvent.text(clickedTags["kurzuskod"]);
 
             dp.events.update(clickedEvent);
-    
+
         } else {
             // Tároljuk az összes eseményt, kivéve a kattintottat
             //&& (event.start == clickedStart || event.barColor == clickedBarColor) 
-            var eventsToStore = dp.events.list.filter(event => event.id != clickedId && (event.start == clickedStart || event.end == clickedEnd || event.barColor == clickedBarColor) );
+            var eventsToStore = dp.events.list.filter(event => event.id != clickedId && (event.start == clickedStart || event.end == clickedEnd || event.barColor == clickedBarColor));
             var datas = {
-                "clickedEvent" : clickedEvent,
-                "clickedColor" : clickedBarColor,
-                "deletedEvents" : [eventsToStore]
+                "clickedEvent": clickedEvent,
+                "clickedColor": clickedBarColor,
+                "deletedEvents": [eventsToStore]
             }
             localStorage.setItem(clickedId, JSON.stringify(datas));
-            
+
             // Töröljük az eseményeket a naptárból, kivéve a kattintottat
             dp.events.list = dp.events.list.filter(e => !eventsToStore.some(ev => ev.id === e.id));
-            
-    
+
+
             // Megváltoztatjuk a kattintott esemény színét és kijelöljük
             clickedEvent.data.originalColor = clickedEvent.data.backColor; // Eredeti szín mentése
             clickedEvent.data.backColor = clickedBarColor;
             clickedEvent.data.isSelected = true;
-            clickedEvent.text(clickedTags["kurzuskod"]+" - " + clickedTags["tantargy"] +"\n"+ clickedTags["tanar"]); 
+            clickedEvent.text(clickedTags["kurzuskod"] + " - " + clickedTags["tantargy"] + "\n" + clickedTags["tanar"]);
             dp.events.update(clickedEvent);
-    
+
         }
 
     };
-    
+
 
 
 
@@ -132,138 +132,141 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Lekérdezési adatfeldolgozó
     window.fetchData = function () {
+
         var name = document.getElementById("name").value;
-        var semester = document.getElementById("semester").value;
-        var apiUrl = "get_data.php?name=" + encodeURIComponent(name) + "&semester=" + encodeURIComponent(semester);
 
         if (!name) {
-            alert("Kérlek, add meg a tantárgy nevét vagy kódját!");
+            alert("Kérlek, add meg a tantárgyak kódjait!");
             return;
         }
+        name.split(";").forEach(code => {
+            code = code.trim();
+            var semester = document.getElementById("semester").value;
+            var apiUrl = "get_data.php?name=" + encodeURIComponent(code) + "&semester=" + encodeURIComponent(semester);
 
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", apiUrl, true);
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", apiUrl, true);
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                try {
-                    var response = JSON.parse(xhr.responseText);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
 
-                    if (response.error) {
-                        alert(response.error);
-                        return;
+                        if (response.error) {
+                            alert(response.error);
+                            return;
+                        }
+
+                        updateTable(response);
+                        updateCalendar(response);
+                    } catch (e) {
+                        alert("Hiba a válasz feldolgozása közben: " + e.message);
                     }
-
-                    updateTable(response);
-                    updateCalendar(response);
-                } catch (e) {
-                    alert("Hiba a válasz feldolgozása közben: " + e.message);
                 }
-            }
-        };
+            };
 
-        xhr.send();
+            xhr.send();
+        });
     };
-    var colorNameMapping = {};
+var colorNameMapping = {};
 
 
-    function nameColorEvent() {
-        var colorList = document.getElementById("colorList");
-        colorList.innerHTML = '';
-        for (var color in colorNameMapping) {
-            var listItem = document.createElement("li");
+function nameColorEvent() {
+    var colorList = document.getElementById("colorList");
+    colorList.innerHTML = '';
+    for (var color in colorNameMapping) {
+        var listItem = document.createElement("li");
 
-            // Create a color box
-            var colorBox = document.createElement("span");
-            colorBox.className = "color-box";
-            colorBox.style.backgroundColor = color; // Set background color to the event color
+        // Create a color box
+        var colorBox = document.createElement("span");
+        colorBox.className = "color-box";
+        colorBox.style.backgroundColor = color; // Set background color to the event color
 
-            listItem.appendChild(colorBox); // Add the color box to the list item
-            listItem.appendChild(document.createTextNode(colorNameMapping[color])); // Add text to the list item
+        listItem.appendChild(colorBox); // Add the color box to the list item
+        listItem.appendChild(document.createTextNode(colorNameMapping[color])); // Add text to the list item
 
-            colorList.appendChild(listItem); // Add the list item to the list
-        }
-
+        colorList.appendChild(listItem); // Add the list item to the list
     }
-    // Táblázat frissítése
-    function updateTable(data) {
-        var tableBody = document.getElementById("resulttable").getElementsByTagName('tbody')[0];
-        tableBody.innerHTML = "";
 
-        data.forEach(function (item) {
-            var row = tableBody.insertRow();
-            row.innerHTML = "<td>" + item.idopont + "</td><td>" + item.kodok + "</td>";
-        });
-    }
-    function getColor() {
-        const getVibrantComponent = () => Math.floor(128 + Math.random() * 128).toString(16).padStart(2, '0');
-        return `#${getVibrantComponent()}${getVibrantComponent()}${getVibrantComponent()}`;
-    }
-    
-    
-    // Naptár frissítése
-    function updateCalendar(data) {
-        //dp.events.list = [];
-        var color = getColor();
-        data.forEach(function (item) {
-            const kurzuskod = parseInt(item.kodok.split('-')[2].split(' ')[0]);
-            const targykod = item.kodok.split(' ')[0].replace(/-\d+$/, "");
-            if (!(targykod in errors) || !errors[targykod].includes(kurzuskod) &&  item.idopont.split(" ").length > 1) {
-                var [start, end] = item.idopont.split(" ")[1].split("-");
-                var day = item.idopont.split(" ")[0];
-                start = start.split(":");
-                end = end.split(":");
-                var clickedKey;
-                Object.keys(localStorage).forEach(key => {
-                    var clickedEvent = JSON.parse(localStorage.getItem(key))["clickedEvent"];
-                    if(clickedEvent.start == getDay(day).addHours(start[0]).addMinutes(start[1]) || clickedEvent.end == getDay(day).addHours(end[0]).addMinutes(end[1])) {
-                        clickedKey = key;
-                    }
-                })
-                console.log(clickedKey);
-                var addEvent = {
-                    start: getDay(day).addHours(start[0]).addMinutes(start[1]),
-                    end: getDay(day).addHours(end[0]).addMinutes(end[1]),
-                    id: DayPilot.guid(),
-                    text: "#" + kurzuskod,
-                    barColor: color,
-                    tags: {"tanar": item.tanar,"tantargy": item.tantargy, "kurzuskod": "#" + kurzuskod}
-                };
+}
+// Táblázat frissítése
+function updateTable(data) {
+    var tableBody = document.getElementById("resulttable").getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = "";
 
-                if(clickedKey) {
-                    var keyevents = JSON.parse(localStorage.getItem(clickedKey));
-                    keyevents["deletedEvents"][0].push(addEvent);
-                    localStorage.setItem(clickedKey, JSON.stringify(keyevents));
+    data.forEach(function (item) {
+        var row = tableBody.insertRow();
+        row.innerHTML = "<td>" + item.idopont + "</td><td>" + item.kodok + "</td>";
+    });
+}
+function getColor() {
+    const getVibrantComponent = () => Math.floor(128 + Math.random() * 128).toString(16).padStart(2, '0');
+    return `#${getVibrantComponent()}${getVibrantComponent()}${getVibrantComponent()}`;
+}
+
+
+// Naptár frissítése
+function updateCalendar(data) {
+    //dp.events.list = [];
+    var color = getColor();
+    data.forEach(function (item) {
+        const kurzuskod = parseInt(item.kodok.split('-')[2].split(' ')[0]);
+        const targykod = item.kodok.split(' ')[0].replace(/-\d+$/, "");
+        if (!(targykod in errors) || !errors[targykod].includes(kurzuskod) && item.idopont.split(" ").length > 1) {
+            var [start, end] = item.idopont.split(" ")[1].split("-");
+            var day = item.idopont.split(" ")[0];
+            start = start.split(":");
+            end = end.split(":");
+            var clickedKey;
+            Object.keys(localStorage).forEach(key => {
+                var clickedEvent = JSON.parse(localStorage.getItem(key))["clickedEvent"];
+                if (clickedEvent.start == getDay(day).addHours(start[0]).addMinutes(start[1]) || clickedEvent.end == getDay(day).addHours(end[0]).addMinutes(end[1])) {
+                    clickedKey = key;
                 }
-                else {
-                    dp.events.add(addEvent);
-                }
+            })
+            var addEvent = {
+                start: getDay(day).addHours(start[0]).addMinutes(start[1]),
+                end: getDay(day).addHours(end[0]).addMinutes(end[1]),
+                id: DayPilot.guid(),
+                text: "#" + kurzuskod,
+                barColor: color,
+                tags: { "tanar": item.tanar, "tantargy": item.tantargy, "kurzuskod": "#" + kurzuskod }
+            };
+
+            if (clickedKey) {
+                var keyevents = JSON.parse(localStorage.getItem(clickedKey));
+                keyevents["deletedEvents"][0].push(addEvent);
+                localStorage.setItem(clickedKey, JSON.stringify(keyevents));
             }
-        });
-        colorNameMapping[color] = data[0].tantargy;
-        nameColorEvent();
-        dp.update();
-    }
-
-    function getDay(day) {
-        var i = 0;
-        switch (day) {
-            case "Hétfo":
-                i = 1;
-                break;
-            case "Kedd":
-                i = 2;
-                break;
-            case "Szerda":
-                i = 3;
-                break;
-            case "Csütörtök":
-                i = 4;
-                break;
-            case "Péntek":
-                i = 5;
-                break;
+            else {
+                dp.events.add(addEvent);
+            }
         }
-        return new DayPilot.Date.today().firstDayOfWeek().addDays(i);
+    });
+    colorNameMapping[color] = data[0].tantargy;
+    nameColorEvent();
+    dp.update();
+}
+
+function getDay(day) {
+    var i = 0;
+    switch (day) {
+        case "Hétfo":
+            i = 1;
+            break;
+        case "Kedd":
+            i = 2;
+            break;
+        case "Szerda":
+            i = 3;
+            break;
+        case "Csütörtök":
+            i = 4;
+            break;
+        case "Péntek":
+            i = 5;
+            break;
     }
+    return new DayPilot.Date.today().firstDayOfWeek().addDays(i);
+}
 });
