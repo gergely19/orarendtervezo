@@ -1,10 +1,13 @@
+
+localStorage.clear();
+
 document.addEventListener("DOMContentLoaded", function () {
     const errors = {
-        "IP-18cSZÁMEA1G": [1,2,12], //számításelmélet Gy
-        "IP-18cNM1G": [1,2,3], //numerikus módszerek Gy
-        "IP-18AB1G": [1,2,3,4,5,9,10,11,12], //adatbázisok Gy
-        "IP-18OPREG": [1,2,3,4,5,6,7,8,9], //operációs rendszerek Gy
-        "IP-18cSZTEG": [1,2,3] //Szoftvertechnologia Ea+Gy
+        "IP-18cSZÁMEA1G": [1, 2, 12], //számításelmélet Gy
+        "IP-18cNM1G": [1, 2, 3], //numerikus módszerek Gy
+        "IP-18AB1G": [1, 2, 3, 4, 5, 9, 10, 11, 12], //adatbázisok Gy
+        "IP-18OPREG": [1, 2, 3, 4, 5, 6, 7, 8, 9], //operációs rendszerek Gy
+        "IP-18cSZTEG": [1, 2, 3] //Szoftvertechnologia Ea+Gy
     }
 
     var dp = new DayPilot.Calendar("dp");
@@ -12,7 +15,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // Naptár nézet beállítása
     dp.days = 5;
     dp.dayBeginsHour = 8;
-    dp.dayEndsHour = 18;
+    dp.dayEndsHour = 20;
+    dp.businessBeginsHour = 8;
+    dp.businessEndsHour = 20;
+    dp.cellDuration = 15;
+    dp.cellHeight = 15;
     dp.startDate = getDay("Hétfo");
 
     dp.onBeforeHeaderRender = function (args) {
@@ -38,17 +45,75 @@ document.addEventListener("DOMContentLoaded", function () {
         dp.clearSelection();
     };
 
-    // Esemény kattintás esemény kezelése
     dp.onEventClick = function (args) {
-        // Megjelenít egy megerősítő párbeszédablakot
-        var confirmation = confirm("Biztosan törölni szeretnéd ezt az eseményt?");
+        // Az esemény kezdő időpontja és az esemény adatai
+        var clickedEvent = args.e;
+        var clickedStart = clickedEvent.data.start;
+        var clickedEnd = clickedEvent.data.end;
+        var clickedId = clickedEvent.data.id;
+        var clickedBarColor = clickedEvent.data.barColor;
+        // Ellenőrizzük, hogy az események már a localStorage-ban vannak-e
+        console.log(clickedEvent.data);
+        if (localStorage.getItem(clickedId)) {
+            // Ha az események már tárolva vannak, visszaállítjuk őket a naptárba
+            var eventsToRestore = JSON.parse(localStorage.getItem(clickedId))["deletedEvents"];
+            localStorage.removeItem(clickedId);
 
-        // Ha a felhasználó rákattintott az 'Igen' gombra
-        if (confirmation) {
-            // Az esemény törlése a DayPilot-ból
-            dp.events.remove(args.e); // args.e az esemény objektum
+            deletedColors = new Set();
+            Object.keys(localStorage).forEach(key => {
+                var deletedEvents = JSON.parse(localStorage.getItem(key))["deletedEvents"][0];
+                deletedEvents.forEach(event => {
+                    deletedColors.add(event.barColor);
+                });
+            })
+    
+
+            
+            eventsToRestore[0].forEach(event => {
+                if(!(deletedColors.has(event.barColor))) {
+                    dp.events.add(event);
+                }
+                else{
+                    Object.keys(localStorage).forEach(key => {
+                        var color = JSON.parse(localStorage.getItem(key))["clickedColor"];
+                        if(color == event.barColor) {
+                            var keyevents = JSON.parse(localStorage.getItem(key));
+                            keyevents["deletedEvents"][0].push(event);
+                            localStorage.setItem(key, JSON.stringify(keyevents));
+                        }
+                    })
+                }
+            });
+            // Visszaállítjuk a kattintott esemény eredeti színét és eltávolítjuk a kijelölést
+            clickedEvent.data.backColor = clickedEvent.data.originalColor || "";
+            clickedEvent.data.isSelected = false;
+            dp.events.update(clickedEvent);
+    
+        } else {
+            // Tároljuk az összes eseményt, kivéve a kattintottat
+            //&& (event.start == clickedStart || event.barColor == clickedBarColor) 
+            var eventsToStore = dp.events.list.filter(event => event.id != clickedId && (event.start == clickedStart || event.end == clickedEnd || event.barColor == clickedBarColor) );
+            var datas = {
+                "clickedEvent" : clickedEvent,
+                "clickedColor" : clickedBarColor,
+                "deletedEvents" : [eventsToStore]
+            }
+            localStorage.setItem(clickedId, JSON.stringify(datas));
+            
+            // Töröljük az eseményeket a naptárból, kivéve a kattintottat
+            dp.events.list = dp.events.list.filter(e => !eventsToStore.some(ev => ev.id === e.id));
+            
+    
+            // Megváltoztatjuk a kattintott esemény színét és kijelöljük
+            clickedEvent.data.originalColor = clickedEvent.data.backColor; // Eredeti szín mentése
+            clickedEvent.data.backColor = clickedBarColor;
+            clickedEvent.data.isSelected = true;
+            dp.events.update(clickedEvent);
+    
         }
+
     };
+    
 
 
 
