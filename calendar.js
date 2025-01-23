@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     dp.cellDuration = 15;
     dp.cellHeight = 15;
     dp.startDate = getDay("Hétfo");
+    dp.eventHoverHandling = "Bubble";
 
     dp.onBeforeHeaderRender = function (args) {
         var date = args.header.start;
@@ -31,6 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
         args.header.html = hour.toString("H:mm");
         args.header.cssClass = "hourheader";
     };
+    dp.onBeforeEventRender = function(args) {
+        var clickedTags =   args.e.tags;
+        args.data.bubbleHtml = clickedTags["tantargy"] +" - " + clickedTags["tanar"];
+      };
     // Esemény létrehozása
     dp.onTimeRangeSelected = function (args) {
         var name = prompt("Új esemény neve:", "Esemény");
@@ -224,7 +229,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     barColor: color,
                     tags: {"tanar": item.tanar,"tantargy": item.tantargy, "kurzuskod": "#" + kurzuskod}
                 };
-                
+
                 if(clickedKey) {
                     var keyevents = JSON.parse(localStorage.getItem(clickedKey));
                     keyevents["deletedEvents"][0].push(addEvent);
