@@ -195,7 +195,8 @@ document.addEventListener("DOMContentLoaded", function () {
         data.forEach(function (item) {
             const kurzuskod = parseInt(item.kodok.split('-')[2].split(' ')[0]);
             const targykod = item.kodok.split(' ')[0].replace(/-\d+$/, "");
-            if (!(targykod in errors) || !errors[targykod].includes(kurzuskod)) {
+            if (!(targykod in errors) || !errors[targykod].includes(kurzuskod) &&  item.idopont.split(" ").length > 1) {
+                console.log(item.idopont.split(" ").length);
                 var [start, end] = item.idopont.split(" ")[1].split("-");
                 var day = item.idopont.split(" ")[0];
                 start = start.split(":");
