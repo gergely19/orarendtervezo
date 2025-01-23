@@ -63,16 +63,11 @@ document.addEventListener("DOMContentLoaded", function () {
             // Ha az események már tárolva vannak, visszaállítjuk őket a naptárba
             var eventsToRestore = JSON.parse(localStorage.getItem(clickedId))["deletedEvents"];
             localStorage.removeItem(clickedId);
-
             deletedColors = new Set();
             Object.keys(localStorage).forEach(key => {
-                var deletedEvents = JSON.parse(localStorage.getItem(key))["deletedEvents"][0];
-                deletedEvents.forEach(event => {
-                    deletedColors.add(event.barColor);
-                });
+                deletedColors.add(JSON.parse(localStorage.getItem(key))["clickedColor"]);
             })
-
-
+            console.log(deletedColors);
 
             eventsToRestore[0].forEach(event => {
                 if (!(deletedColors.has(event.barColor))) {
