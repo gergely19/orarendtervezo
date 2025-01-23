@@ -208,14 +208,31 @@ document.addEventListener("DOMContentLoaded", function () {
                 var day = item.idopont.split(" ")[0];
                 start = start.split(":");
                 end = end.split(":");
-                dp.events.add({
+                var clickedKey;
+                Object.keys(localStorage).forEach(key => {
+                    var clickedEvent = JSON.parse(localStorage.getItem(key))["clickedEvent"];
+                    if(clickedEvent.start == getDay(day).addHours(start[0]).addMinutes(start[1]) || clickedEvent.end == getDay(day).addHours(end[0]).addMinutes(end[1])) {
+                        clickedKey = key;
+                    }
+                })
+                console.log(clickedKey);
+                var addEvent = {
                     start: getDay(day).addHours(start[0]).addMinutes(start[1]),
                     end: getDay(day).addHours(end[0]).addMinutes(end[1]),
                     id: DayPilot.guid(),
                     text: "#" + kurzuskod,
                     barColor: color,
                     tags: {"tanar": item.tanar,"tantargy": item.tantargy, "kurzuskod": "#" + kurzuskod}
-                });
+                };
+                
+                if(clickedKey) {
+                    var keyevents = JSON.parse(localStorage.getItem(clickedKey));
+                    keyevents["deletedEvents"][0].push(addEvent);
+                    localStorage.setItem(clickedKey, JSON.stringify(keyevents));
+                }
+                else {
+                    dp.events.add(addEvent);
+                }
             }
         });
         colorNameMapping[color] = data[0].tantargy;
