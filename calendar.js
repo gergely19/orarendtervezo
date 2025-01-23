@@ -221,16 +221,16 @@ function updateCalendar(data) {
             kurzusok["gyakorlat"].push(item);
         }
     })
-
     addEventsToCalendar(kurzusok["eloadas"], "eloadas");
     addEventsToCalendar(kurzusok["gyakorlat"], "gyakorlat");
     
 }
 
 function addEventsToCalendar(data, type) {
+    if(data.length > 0){
     var color = getColor();
-    const includesBoth = data[0].tantargy.includes("Ea+Gy");
-    var tantargyName = data[0].tantargy;
+    var tantargyName = data[0].tantargy.replace("Ea+GY", "Ea+Gy");
+    const includesBoth = tantargyName.includes("Ea+Gy") ;
     if(includesBoth) {
         tantargyName = type == "eloadas" ? tantargyName.replace("+Gy","") : tantargyName.replace("Ea+","")
     }
@@ -272,6 +272,7 @@ function addEventsToCalendar(data, type) {
     colorNameMapping[color] = tantargyName;
     nameColorEvent();
     dp.update();
+}
 }
 
 function getDay(day) {
