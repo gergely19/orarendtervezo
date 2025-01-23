@@ -52,8 +52,8 @@ document.addEventListener("DOMContentLoaded", function () {
         var clickedEnd = clickedEvent.data.end;
         var clickedId = clickedEvent.data.id;
         var clickedBarColor = clickedEvent.data.barColor;
+        var clickedTags = clickedEvent.data.tags;
         // Ellenőrizzük, hogy az események már a localStorage-ban vannak-e
-        console.log(clickedEvent.data);
         if (localStorage.getItem(clickedId)) {
             // Ha az események már tárolva vannak, visszaállítjuk őket a naptárba
             var eventsToRestore = JSON.parse(localStorage.getItem(clickedId))["deletedEvents"];
@@ -87,6 +87,10 @@ document.addEventListener("DOMContentLoaded", function () {
             // Visszaállítjuk a kattintott esemény eredeti színét és eltávolítjuk a kijelölést
             clickedEvent.data.backColor = clickedEvent.data.originalColor || "";
             clickedEvent.data.isSelected = false;
+            clickedEvent.data.fontColor = "black";
+
+            clickedEvent.text(clickedTags["kurzuskod"]); 
+
             dp.events.update(clickedEvent);
     
         } else {
@@ -108,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
             clickedEvent.data.originalColor = clickedEvent.data.backColor; // Eredeti szín mentése
             clickedEvent.data.backColor = clickedBarColor;
             clickedEvent.data.isSelected = true;
+            clickedEvent.text(clickedTags["kurzuskod"]+" - " + clickedTags["tantargy"] +"\n"+ clickedTags["tanar"]); 
             dp.events.update(clickedEvent);
     
         }
@@ -186,8 +191,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
     function getColor() {
-        return '#' + Math.floor(Math.random() * 16777215).toString(16);
+        const getVibrantComponent = () => Math.floor(128 + Math.random() * 128).toString(16).padStart(2, '0');
+        return `#${getVibrantComponent()}${getVibrantComponent()}${getVibrantComponent()}`;
     }
+    
+    
     // Naptár frissítése
     function updateCalendar(data) {
         //dp.events.list = [];
@@ -196,7 +204,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const kurzuskod = parseInt(item.kodok.split('-')[2].split(' ')[0]);
             const targykod = item.kodok.split(' ')[0].replace(/-\d+$/, "");
             if (!(targykod in errors) || !errors[targykod].includes(kurzuskod) &&  item.idopont.split(" ").length > 1) {
-                console.log(item.idopont.split(" ").length);
                 var [start, end] = item.idopont.split(" ")[1].split("-");
                 var day = item.idopont.split(" ")[0];
                 start = start.split(":");
@@ -206,7 +213,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     end: getDay(day).addHours(end[0]).addMinutes(end[1]),
                     id: DayPilot.guid(),
                     text: "#" + kurzuskod,
-                    barColor: color
+                    barColor: color,
+                    tags: {"tanar": item.tanar,"tantargy": item.tantargy, "kurzuskod": "#" + kurzuskod}
                 });
             }
         });

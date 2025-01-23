@@ -56,11 +56,13 @@ foreach ($entries as $entry) {
         $idopont = trim($cols->item(0)->nodeValue);
         $tantargy = trim($cols->item(2)->nodeValue);
         $kodok = trim($cols->item(1)->nodeValue);
+        $tanar = trim($cols->item(5)->nodeValue);
 
         $courses[] = [
             'idopont' => $idopont,           
             'tantargy' => $tantargy,
-            'kodok' => $kodok
+            'kodok' => $kodok,
+            'tanar' => $tanar
         ];
     }
 }
