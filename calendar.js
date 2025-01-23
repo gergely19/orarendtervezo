@@ -208,7 +208,32 @@ function getColor() {
 // Naptár frissítése
 function updateCalendar(data) {
     //dp.events.list = [];
+    var kurzusok = {
+        "eloadas": [],
+        "gyakorlat": []
+    }
+    data.forEach(item => {
+        const kurzuskod = parseInt(item.kodok.split('-')[2].split(' ')[0]);
+        if(kurzuskod >= 90) {
+            kurzusok["eloadas"].push(item);
+        }
+        else {
+            kurzusok["gyakorlat"].push(item);
+        }
+    })
+
+    addEventsToCalendar(kurzusok["eloadas"], "eloadas");
+    addEventsToCalendar(kurzusok["gyakorlat"], "gyakorlat");
+    
+}
+
+function addEventsToCalendar(data, type) {
     var color = getColor();
+    const includesBoth = data[0].tantargy.includes("Ea+Gy");
+    var tantargyName = data[0].tantargy;
+    if(includesBoth) {
+        tantargyName = type == "eloadas" ? tantargyName.replace("+Gy","") : tantargyName.replace("Ea+","")
+    }
     data.forEach(function (item) {
         const kurzuskod = parseInt(item.kodok.split('-')[2].split(' ')[0]);
         const targykod = item.kodok.split(' ')[0].replace(/-\d+$/, "");
@@ -224,13 +249,14 @@ function updateCalendar(data) {
                     clickedKey = key;
                 }
             })
+
             var addEvent = {
                 start: getDay(day).addHours(start[0]).addMinutes(start[1]),
                 end: getDay(day).addHours(end[0]).addMinutes(end[1]),
                 id: DayPilot.guid(),
                 text: "#" + kurzuskod,
                 barColor: color,
-                tags: { "tanar": item.tanar, "tantargy": item.tantargy, "kurzuskod": "#" + kurzuskod }
+                tags: { "tanar": item.tanar, "tantargy": tantargyName, "kurzuskod": "#" + kurzuskod }
             };
 
             if (clickedKey) {
@@ -243,7 +269,7 @@ function updateCalendar(data) {
             }
         }
     });
-    colorNameMapping[color] = data[0].tantargy;
+    colorNameMapping[color] = tantargyName;
     nameColorEvent();
     dp.update();
 }
