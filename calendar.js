@@ -3,10 +3,17 @@ localStorage.clear();
 
 document.addEventListener("DOMContentLoaded", function () {
     const errors = {
-        "IP-18cSZÁMEA1G": [1, 2, 12], //számításelmélet Gy
+        "IP-18KVIKWPROGEG": [2,5,6,8,9,10], //kliens Ea+Gy
+        "IP-18eKVIHJEG": [], //haladó java Ea+Gy
+        "IP-18KVISZWPROGEG": [4], //szerer Ea+Gy
+        "IP-18KVSZKRBG": [], //kriptográfia Gy
+        "IP-24KVSZKBIZTE": [1], //kiverbiztonság Ea
+        "IP-18KVPYEG": [4, 5, 6], //python
+        "IP-24KVIMWADEG":  [1], //modern web
+        "IP-18cSZÁMEA1G": [1, 2, 12, 5], //számításelmélet Gy
         "IP-18cNM1G": [1, 2, 3], //numerikus módszerek Gy
-        "IP-18AB1G": [1, 2, 3, 4, 5, 6, 8, 7, 13, 9, 10, 11, 12, 15, 14, 17, 16,], //adatbázisok Gy
-        "IP-18OPREG": [1, 2, 3, 4, 5, 6, 7, 8, 9], //operációs rendszerek Gy
+        "IP-18AB1G": [1, 2, 6, 8, 7, 13, 15, 14, 17, 16,20], //adatbázisok Gy
+        "IP-18OPREG": [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 20], //operációs rendszerek Gy
         "IP-18cSZTEG": [1, 2, 3] //Szoftvertechnologia Ea+Gy
     }
 
@@ -15,9 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Naptár nézet beállítása
     dp.days = 5;
     dp.dayBeginsHour = 8;
-    dp.dayEndsHour = 20;
+    dp.dayEndsHour = 21;
     dp.businessBeginsHour = 8;
-    dp.businessEndsHour = 20;
+    dp.businessEndsHour = 21;
     dp.cellDuration = 15;
     dp.cellHeight = 15;
     dp.startDate = getDay("Hétfo");
@@ -151,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             alert(response.error);
                             return;
                         }
-
+                        alert(response);
                         updateTable(response);
                         updateCalendar(response);
                     } catch (e) {
